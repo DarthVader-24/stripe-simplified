@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { SignedIn, SignInButton } from '@clerk/nextjs';
 import { SignedOut } from '@clerk/nextjs';
 import { Button } from '@/components/ui/button';
+import PurchaseButton from '@/components/PurchaseButton';
 
 interface Course {
   _id: Id<'courses'>;
@@ -67,7 +68,6 @@ const CoursesPage = async () => {
                 <CardTitle className="text-xl mb-2 hover:underline">
                   {course.title}
                 </CardTitle>
-                <p className="text-muted-foreground">{course.description}</p>
                 <p className="mt-4 font-semibold">${course.price}</p>
               </CardContent>
             </Link>
@@ -76,7 +76,9 @@ const CoursesPage = async () => {
               <Badge variant="default" className="text-lg px-3 py-1">
                 ${course.price.toFixed(2)}
               </Badge>
-              <SignedIn>Purchase</SignedIn>
+              <SignedIn>
+                <PurchaseButton courseId={course._id} />
+              </SignedIn>
               <SignedOut>
                 <SignInButton mode="modal">
                   <Button variant="outline">Enroll Now</Button>
