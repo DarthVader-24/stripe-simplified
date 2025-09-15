@@ -1,4 +1,4 @@
-import { defineTable, defineSchema } from 'convex/server';
+import { defineSchema, defineTable } from 'convex/server';
 import { v } from 'convex/values';
 
 export default defineSchema({
@@ -10,7 +10,8 @@ export default defineSchema({
     currentSubscriptionId: v.optional(v.id('subscriptions')),
   })
     .index('by_clerk_id', ['clerkId'])
-    .index('by_stripe_customer_id', ['stripeCustomerId']),
+    .index('by_stripe_customer_id', ['stripeCustomerId'])
+    .index('by_current_subscription_id', ['currentSubscriptionId']),
 
   courses: defineTable({
     title: v.string(),
