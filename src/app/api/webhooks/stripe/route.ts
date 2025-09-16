@@ -1,3 +1,6 @@
+import ProPlanActivatedEmail from '@/emails/ProPlanActivatedEmail';
+import PurchaseConfirmationEmail from '@/emails/PurchaseConfirmationEmail';
+import resend from '@/lib/resend';
 import stripe from '@/lib/stripe';
 import { ConvexHttpClient } from 'convex/browser';
 import Stripe from 'stripe';
@@ -77,7 +80,26 @@ async function handleCheckoutSessionCompleted(
     amount: session.amount_total as number,
     stripePurchaseId: session.id,
   });
-  // todo: send a success email to the user
+
+  if (
+    session.metadata &&
+    session.metadata.courseTitle &&
+    session.metadata.courseImageUrl &&
+    process.env.NODE_ENV === 'development'
+  ) {
+    await resend.emails.send({
+      from: 'MasterClass <onboarding@resend.dev>',
+      to: user.email,
+      subject: 'Purchase Confirmed',
+      react: PurchaseConfirmationEmail({
+        customerName: user.name,
+        courseTitle: session.metadata.courseTitle as string,
+        courseImage: session.metadata.courseImageUrl as string,
+        courseUrl: `${process.env.NEXT_PUBLIC_APP_URL}/courses/${courseId}`,
+        purchaseAmount: session.amount_total as number,
+      }),
+    });
+  }
 }
 
 async function handleSubscriptionUpserted(
@@ -118,7 +140,23 @@ async function handleSubscriptionUpserted(
       `Successfully processed ${eventType} for subscription ${subscription.id}`,
     );
 
-    // todo: send a success email to the user
+    const isCreation = eventType === 'customer.subscription.created';
+    if (isCreation && process.env.NODE_ENV === 'development') {
+      await resend.emails.send({
+        from: 'MasterClass <onboarding@resend.dev>',
+        to: user.email,
+        subject: 'Welcome to MasterClass Pro!',
+        react: ProPlanActivatedEmail({
+          name: user.name,
+          planType: subscription.items.data[0].plan.interval,
+          currentPeriodStart: subscription.start_date,
+          currentPeriodEnd:
+            subscription.start_date +
+            (subscription.items.data[0].plan.interval === 'month' ? 30 : 365),
+          url: `${process.env.NEXT_PUBLIC_APP_URL}`,
+        }),
+      });
+    }
   } catch (error) {
     console.error(
       `Error processing ${eventType} for subscription ${subscription.id}`,

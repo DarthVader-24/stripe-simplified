@@ -1,8 +1,8 @@
-import { action } from './_generated/server';
-import { v, ConvexError } from 'convex/values';
-import { api } from './_generated/api';
-import stripe from '../src/lib/stripe';
+import { ConvexError, v } from 'convex/values';
 import rateLimit from '../src/lib/ratelimit';
+import stripe from '../src/lib/stripe';
+import { api } from './_generated/api';
+import { action } from './_generated/server';
 
 export const createCheckoutSession = action({
   args: {
@@ -58,6 +58,8 @@ export const createCheckoutSession = action({
       metadata: {
         courseId: args.courseId,
         userId: user._id,
+        courseTitle: course.title,
+        courseImageUrl: course.imageUrl,
       },
     });
 

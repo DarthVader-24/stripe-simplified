@@ -1,9 +1,11 @@
-import { httpRouter } from 'convex/server';
-import { httpAction } from './_generated/server';
-import { Webhook } from 'svix';
 import { WebhookEvent } from '@clerk/nextjs/server';
-import { api } from './_generated/api';
+import { httpRouter } from 'convex/server';
+import { Webhook } from 'svix';
+import WelcomeEmail from '../src/emails/WelcomeEmail';
+import resend from '../src/lib/resend';
 import stripe from '../src/lib/stripe';
+import { api } from './_generated/api';
+import { httpAction } from './_generated/server';
 
 const http = httpRouter();
 
@@ -60,7 +62,18 @@ const clerkWebhook = httpAction(async (ctx, request) => {
         clerkId: id,
         stripeCustomerId: customer.id,
       });
-      // TODO: SEND A WELCOME EMAIL
+
+      if (process.env.NODE_ENV === 'development') {
+        await resend.emails.send({
+          from: 'MasterClass <onboarding@resend.dev>',
+          to: email,
+          subject: 'Welcome to MasterClass',
+          react: WelcomeEmail({
+            name,
+            url: `${process.env.NEXT_PUBLIC_APP_URL}`,
+          }),
+        });
+      }
     } catch (err) {
       console.error('Error creating user in Convex', err);
       return new Response('Error creating user in Convex', { status: 500 });
