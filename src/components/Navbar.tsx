@@ -4,15 +4,14 @@ import {
   SignInButton,
   SignOutButton,
   SignUpButton,
+  UserButton,
 } from '@clerk/nextjs';
-import { UserButton } from '@clerk/nextjs';
 import {
   BookOpenIcon,
   CreditCardIcon,
   GraduationCap,
   LogInIcon,
   LogOutIcon,
-  UserPlusIcon,
   ZapIcon,
 } from 'lucide-react';
 import Link from 'next/link';
